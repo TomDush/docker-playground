@@ -4,8 +4,6 @@
 nodes=[
     {
         :hostname => "node1",
-        :ip => "192.168.100.10",
-        :box => "saucy",
         :ram => 1024,
         :cpu => 2
     }
@@ -42,7 +40,6 @@ Vagrant.configure(2) do |config|
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
-  # config.vm.network "public_network"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
@@ -82,14 +79,25 @@ Vagrant.configure(2) do |config|
   # SHELL
   config.vm.provision :shell, path: "bootstrap-arch.sh"
 
+  config.vm.define 'docker-repo', primary: true do |repo|
+    repo.vm.hostname = 'docker-repo'
+    repo.vm.network "public_network", ip: "172.20.5.20"
+    repo.vm.provider "virtualbox" do |vb|
+      vb.memory = 512
+      vb.cpus = 1
+    end
+  end
+
   nodes.each do |machine|
     config.vm.define machine[:hostname] do |node|
       node.vm.hostname = machine[:hostname]
+      node.vm.network "public_network"
       node.vm.provider "virtualbox" do |vb|
         vb.memory = machine[:ram]
         vb.cpus = machine[:cpu]
-
       end
+
+      node.vm.provision :shell, inline: 'echo "172.20.5.20 docker-repo" >> /etc/hosts'
     end
   end
 
