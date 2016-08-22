@@ -98,6 +98,11 @@ Vagrant.configure(2) do |config|
       end
 
       node.vm.provision :shell, inline: 'echo "172.20.5.20 docker-repo" >> /etc/hosts'
+
+      if machine[:hostname] == 'node1'
+        # Redirect Kubernetes port to host 8000
+        node.vm.network 'forwarded_port', guest: 8080, host: 8000
+      end
     end
   end
 
