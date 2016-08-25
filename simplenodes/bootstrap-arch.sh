@@ -18,5 +18,8 @@ mkdir -p /etc/docker/certs.d/docker-repo:5000
 cp /vagrant/docker-repo/certs/domain.crt /etc/docker/certs.d/docker-repo\:5000/ca.crt
 gpasswd -a vagrant docker
 
+# Accessible from outside (to work in a cluster)
+cp /vagrant/docker.service /usr/lib/systemd/system/docker.service
+
 systemctl enable docker
-systemctl restart docker
+# Restart vm before starting docker.
